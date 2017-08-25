@@ -4,7 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 	"time"
-
+  "fmt"
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/payload"
@@ -40,6 +40,51 @@ func InitAPNSClient() error {
 
 	return nil
 }
+
+
+func InitIOSCert() error{
+	ApnsClientMap=make(map[int] *apns.Client ,100)
+	for _,v :=range PushConf.Ios.MultiCert {
+		err,ic:=InitAPNSClientMulti(v.Path,v.Password)
+		if err!=nil{
+			return err
+		}
+		LogAccess.Info(fmt.Sprintf("Sucessfully loaded configuration cert  \n  path: %s\n  type: %d \n",v.Path,v.V))
+		ApnsClientMap[v.V]= ic
+	}
+	return  nil
+}
+
+// InitAPNSClient use for initialize APNs Client.
+func InitAPNSClientMulti(keypath , password string) (err error, ac *apns.Client ){
+	if PushConf.Ios.Enabled {
+		ext := filepath.Ext(keypath)
+
+		switch ext {
+		case ".p12":
+			CertificatePemIos, err = certificate.FromP12File(keypath, password)
+		case ".pem":
+			CertificatePemIos, err = certificate.FromPemFile(keypath, password)
+		default:
+			err = errors.New("wrong certificate key extension")
+		}
+
+		if err != nil {
+			LogError.Error("Cert Error:", err.Error())
+
+			return err,ac
+		}
+
+		if PushConf.Ios.Production {
+			ac = apns.NewClient(CertificatePemIos).Production()
+		} else {
+			ac = apns.NewClient(CertificatePemIos).Development()
+		}
+	}
+
+	return nil,ac
+}
+
 
 func iosAlertDictionary(payload *payload.Payload, req PushNotification) *payload.Payload {
 	// Alert dictionary

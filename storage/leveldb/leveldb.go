@@ -5,8 +5,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/appleboy/gorush/config"
-	"github.com/appleboy/gorush/storage"
+	"github.com/zhaohansprt/gorush/config"
+	"github.com/zhaohansprt/gorush/storage"
 
 	"github.com/syndtr/goleveldb/leveldb"
 )

@@ -65,8 +65,17 @@ type SectionIos struct {
 	Enabled    bool   `yaml:"enabled"`
 	KeyPath    string `yaml:"key_path"`
 	Password   string `yaml:"password"`
+	MultiCert  []SectionMultiCert `yaml:"multicert"`
 	Production bool   `yaml:"production"`
 	MaxRetry   int    `yaml:"max_retry"`
+}
+
+
+type SectionMultiCert struct {
+	V int           `yaml:"v"`
+	Path string     `yaml:"path"`
+	Password string `yaml:"password"`
+
 }
 
 // SectionLog is sub section of config.
@@ -163,6 +172,7 @@ func BuildDefaultPushConf() ConfYaml {
 
 	// iOS
 	conf.Ios.Enabled = false
+	conf.Ios.MultiCert= nil
 	conf.Ios.KeyPath = "key.pem"
 	conf.Ios.Password = ""
 	conf.Ios.Production = false
